@@ -1,7 +1,7 @@
-const HabitCard = ({name, notificationTime, frequency, color, isToday, streak, toggleToday}) => {
+const HabitCard = ({onClick, name, notificationTime, frequency, color, isToday, streak, toggleToday}) => {
     return (
         <div className="habit-card">
-                    <div className="habit-info">
+                    <div className="habit-info" onClick={onClick}>
                         <div className="habit-name">{name}</div>
                         <div className="habit-meta">
                             <div className="habit-meta-item">

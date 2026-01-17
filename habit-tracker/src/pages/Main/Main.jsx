@@ -1,9 +1,11 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import "./Main.css"
 import HabitCard from "../../components/HabitCard"
 import HabitForm from "../../components/HabitForm"
 import Stats from "../../components/Stats"
 import { nanoid } from "nanoid"
+import{useNavigate} from "react-router-dom"
+import { getObject, setObject } from "../../utils/storage"
 const initialHabits = [
     {
         id: nanoid(),
@@ -25,7 +27,16 @@ const initialHabits = [
     }
 ]
 const Main = () => {
-    const [habits, setHabits] = useState(initialHabits)
+    const [habits, setHabits] = useState([])
+    const navigate = useNavigate()
+    
+    useEffect(() => {
+        const loadHabits = async () => {
+            const habits = await getObject("habits")
+            setHabits(habits || [])
+        }
+        loadHabits()
+    }, [])
     const [form, setForm] = useState({
         habitName: "",
         frequency: "daily",
@@ -43,7 +54,8 @@ const Main = () => {
             frequency: form.frequency,
             streak: 0,
             isToday: false,
-            color: "red"
+            color: "red",
+            startDate: new Date()
         }
         setHabits((val) => [...val, newHabit])
     }
@@ -55,6 +67,10 @@ const Main = () => {
             streak: oldHabit.isToday ? oldHabit.streak - 1 : oldHabit.streak + 1}
         setHabits((state) => state.map((el) => el.id === id ? newHabit : el))
     }
+    useEffect(() =>{
+        console.log(habits)
+        setObject("habits", habits)
+    }, [habits])
     return (
         <div className="container">
             <header>
@@ -73,7 +89,8 @@ const Main = () => {
             <div className="habits-section">
                 <h2>📋 Today's Habits</h2>
 
-                {habits.sort((a, b) => b.streak - a.streak).map((el) => <HabitCard toggleToday={() => toggleToday(el.id)} {...el} />)}
+                {habits.sort((a, b) => b.streak - a.streak).map((el) => 
+                <HabitCard toggleToday={() => toggleToday(el.id)} {...el} onClick={() => navigate(`/history/${el.id}`)} />)}
             </div>
         </div>
     )
